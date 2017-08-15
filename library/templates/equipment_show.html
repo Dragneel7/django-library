@@ -1,0 +1,44 @@
+{% load django_tables2 %}
+{% xextends "base.html" with active_tab=equipments small_panel=true center_panel_content=true %}
+
+{% block content %}
+    <div class="page-title-outer"><div class="page-title">{{ equipment.title|title }}</div></div>
+    <div class="equipment_desc">
+
+        Title: {{ equipment.title }}<br/>
+        Identifier: {{ equipment.identity }}<br/>
+        {{ equipment.company }}<br/>
+        Lend period: {{ equipment.lend_period }}<br/>
+        Price: {{ equipment.price }}<br/>
+        Available:
+            {% if equipment.lend_by != None %}
+                No
+            {% else %}
+                Yes, <a href="{% url 'borrow_equipment' equipment.id %}" onclick='return confirm("Do you want to borrow {{ equipment.title }} for {{ equipment.lend_period }}")'>Borrow it!</a>
+            {% endif %}
+
+    </div>
+
+    <a href="{% url 'equipments' %}">List of equipments</a><br/><br/>
+    {% if pbu == "true" %}
+    You have this equipment! Make good use of it!
+    {% endif %}
+
+    {% if request.user|has_group:"Librarians" %}
+        <br/><ul>
+
+    <li><a href="{% url 'edit' 'equipments' equipment.id %}">Edit</a> this equipment</li>
+
+    <li><a href="{% url 'remove' 'equipments' equipment.id %}"
+       onclick='return confirm("Do you really want to delete equipment: {{ equipment.title }}?")'>Remove
+</a> this equipment</li>
+
+
+        {% if equipment.lend_by != None %}
+            <li><a href="{% url 'return_equipment' equipment.id %}" onclick='return confirm("Do you want to mark {{ equipment.title }} as returned")'>Mark</a> this equipment as returned.</li>
+        {% endif %}
+    </ul>
+    {% else %}
+    {% endif %}
+
+{% endblock %}

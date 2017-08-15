@@ -4,16 +4,16 @@ import hashlib
 from django.utils import timezone
 
 
-class Book(models.Model):
+class Equipment(models.Model):
     """
-    An Book class - to describe book in the system.
+    An Equipment class - to describe equipment in the system.
     """
     title = models.CharField(max_length=200)
-    ISBN = models.CharField(max_length=200)
-    publisher = models.ForeignKey('Publisher')
-    author = models.ForeignKey('Author')
+    identity = models.CharField(max_length=200)
+    company = models.ForeignKey('Company')
+    # author = models.ForeignKey('Author')
     lend_period = models.ForeignKey('LendPeriods')
-    page_amount = models.IntegerField()
+    price = models.IntegerField()
     lend_by = models.ForeignKey('UserProfile', null=True, blank=True)
     lend_from = models.DateField(null=True, blank=True)
 
@@ -28,7 +28,7 @@ class Book(models.Model):
 
 class LendPeriods(models.Model):
     """
-    Users can borrow books from library for different
+    Users can borrow equipments from inventory for different
     time period. This class defines frequently-used
     lending periods.
     """
@@ -45,64 +45,64 @@ class LendPeriods(models.Model):
         verbose_name_plural = "Lending periods"
 
 
-class Publisher(models.Model):
+class Company(models.Model):
     """
-    Class defines book's publisher
+    Class defines book's Company
     """
     name = models.CharField(max_length=100)
 
     def __unicode__(self):
-        return 'Publisher: %s' % self.name
+        return 'Company: %s' % self.name
 
     class Meta:
         get_latest_by = "name"
         ordering = ['name']
-        verbose_name = "Publisher"
-        verbose_name_plural = "Publishers"
+        verbose_name = "Company"
+        verbose_name_plural = "Companies"
+#
+#
+# class Author(models.Model):
+#     """
+#     Class defines book's author
+#     """
+#     name = models.CharField(max_length=100)
+#     surname = models.CharField(max_length=100)
+#     date_of_birth = models.DateField()
+#
+#     def __unicode__(self):
+#         return 'Author: ' + self.name + ' ' + self.surname
+#
+#     def __str__(self):
+#         return 'Author: ' + self.name + ' ' + self.surname
+#
+#     class Meta:
+#         get_latest_by = "name"
+#         ordering = ['name', 'surname']
+#         verbose_name = "Author"
+#         verbose_name_plural = "Authors"
 
 
-class Author(models.Model):
-    """
-    Class defines book's author
-    """
-    name = models.CharField(max_length=100)
-    surname = models.CharField(max_length=100)
-    date_of_birth = models.DateField()
-
-    def __unicode__(self):
-        return 'Author: ' + self.name + ' ' + self.surname
-
-    def __str__(self):
-        return 'Author: ' + self.name + ' ' + self.surname
-
-    class Meta:
-        get_latest_by = "name"
-        ordering = ['name', 'surname']
-        verbose_name = "Author"
-        verbose_name_plural = "Authors"
-
-
-class QuotationFromBook(models.Model):
-    """
-    Class descirbes specific quotation from the book
-    saved by specific user
-    """
-    user = models.ForeignKey(User, blank=False, null=False)
-    book = models.ForeignKey(Book, blank=False, null=False)
-    quotation = models.CharField(max_length=600, null=False, blank=False)
-    creation_date = models.DateField(blank=False, null=False)
-
-    def __unicode__(self):
-        return 'quotation: %s...' % self.quotation[0:12]
-
-    def get_full_quotation(self):
-        return '%s' % self.quotation
-
-    class Meta:
-        get_latest_by = "creation_date"
-        ordering = ['quotation']
-        verbose_name = "Quotation"
-        verbose_name_plural = "Quotations"
+# class QuotationFromBook(models.Model):
+#     """
+#     Class descirbes specific quotation from the book
+#     saved by specific user
+#     """
+#     user = models.ForeignKey(User, blank=False, null=False)
+#     book = models.ForeignKey(Book, blank=False, null=False)
+#     quotation = models.CharField(max_length=600, null=False, blank=False)
+#     creation_date = models.DateField(blank=False, null=False)
+#
+#     def __unicode__(self):
+#         return 'quotation: %s...' % self.quotation[0:12]
+#
+#     def get_full_quotation(self):
+#         return '%s' % self.quotation
+#
+#     class Meta:
+#         get_latest_by = "creation_date"
+#         ordering = ['quotation']
+#         verbose_name = "Quotation"
+#         verbose_name_plural = "Quotations"
 
 
 class UserProfile(models.Model):

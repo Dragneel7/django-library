@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django import forms
 from django.utils.html import strip_tags
-from .models import UserProfile, User, Author, Publisher, LendPeriods, Book
+from .models import UserProfile, User, Company, LendPeriods, Equipment
 from .validators import email_vailidator
 from django.utils import timezone
 from django.forms import ModelForm
@@ -31,7 +31,7 @@ class UserEditForm(forms.Form):
         valid = super(UserEditForm, self).is_valid()
         # we're done now if not valid
         if not valid:
-            return valid 
+            return valid
 
         for f, error in self.errors.iteritems():
             if f != '__all_':
@@ -105,27 +105,27 @@ class AuthenticateForm(AuthenticationForm):
         return form
 
 
-class AuthorForm(ModelForm):
-    """
-    ModelForm to create and edit Author.
-    """
-    class Meta:
-        model = Author
-        fields = ['name', 'surname', 'date_of_birth', 'id']
-        widgets = {
-            'name': forms.widgets.TextInput(attrs={'placeholder': 'Name'}),
-            'surname': forms.widgets.TextInput(attrs={'placeholder': 'Surname'}),
-            'date_of_birth': forms.widgets.DateInput(attrs={'placeholder': 'Date of birth'}),
-            'id': forms.widgets.HiddenInput(),
-        }
+# class AuthorForm(ModelForm):
+#     """
+#     ModelForm to create and edit Author.
+#     """
+#     class Meta:
+#         model = Author
+#         fields = ['name', 'surname', 'date_of_birth', 'id']
+#         widgets = {
+#             'name': forms.widgets.TextInput(attrs={'placeholder': 'Name'}),
+#             'surname': forms.widgets.TextInput(attrs={'placeholder': 'Surname'}),
+#             'date_of_birth': forms.widgets.DateInput(attrs={'placeholder': 'Date of birth'}),
+#             'id': forms.widgets.HiddenInput(),
+#         }
 
 
-class PublisherForm(ModelForm):
+class CompanyForm(ModelForm):
     """
-    ModelForm to create and edit Publisher.
+    ModelForm to create and edit Company.
     """
     class Meta:
-        model = Publisher
+        model = Company
         fields = ['name']
         widgets = {
             'name': forms.widgets.TextInput(attrs={'placeholder': 'Name'}),
@@ -145,18 +145,17 @@ class LendPeriodForm(ModelForm):
             }
 
 
-class BookForm(ModelForm):
+class EquipmentForm(ModelForm):
     """
-    ModelForm to create and edit Book.
+    ModelForm to create and edit Equipment.
     """
     class Meta:
-        model = Book
-        fields = ['title', 'ISBN', 'publisher', 'author', 'lend_period', 'page_amount']
+        model = Equipment
+        fields = ['title', 'identity', 'company', 'lend_period', 'price']
         widgets = {
             'title': forms.widgets.TextInput(attrs={'placeholder': 'Title'}),
-            'ISBN': forms.widgets.TextInput(attrs={'placeholder': 'ISBN'}),
-            'publisher': forms.widgets.Select(),
-            'author': forms.widgets.Select(attrs={'placeholder': 'Author'}),
+            'identity': forms.widgets.TextInput(attrs={'placeholder': 'Code'}),
+            'company': forms.widgets.Select(),
             'lend_period': forms.widgets.Select(attrs={'placeholder': 'Lend period'}),
-            'page_amount': forms.widgets.NumberInput(attrs={'min': 0, 'placeholder': 'Amount of pages'}),
+            'price': forms.widgets.NumberInput(attrs={'min': 0, 'placeholder': 'Price(INR)'}),
             }

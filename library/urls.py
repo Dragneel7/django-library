@@ -14,13 +14,13 @@ urlpatterns = patterns('',
     url(r'^logout/$', 'library_app.views.logout_view', name='logout'),
 
 #only for authorized users
-    url(r'^my_quotations/$', 'library_app.views.user_quotations', name='user_quotations'),
+    # url(r'^my_quotations/$', 'library_app.views.user_quotations', name='user_quotations'),
 
     #books
-    url(r'^books/$', 'library_app.views.books', name='books'),
-    url(r'^books/show/(?P<book_id>\w{0,5})/$', 'library_app.views.books_show', name='books_show'),
-    url(r'^books/borrow/(?P<book_id>\w{0,5})/$', 'library_app.views.borrow_book', name='borrow_book'),
-    url(r'^books/return/(?P<book_id>\w{0,5})/$', 'library_app.views.return_book', name='return_book'),
+    url(r'^equipments/$', 'library_app.views.equipments', name='equipments'),
+    url(r'^equipments/show/(?P<equipment_id>\w{0,5})/$', 'library_app.views.equipments_show', name='equipments_show'),
+    url(r'^equipments/borrow/(?P<equipment_id>\w{0,5})/$', 'library_app.views.borrow_equipment', name='borrow_equipment'),
+    url(r'^equipments/return/(?P<equipment_id>\w{0,5})/$', 'library_app.views.return_equipment', name='return_equipment'),
 
     #authors
     url(r'^authors/$', 'library_app.views.authors', name='authors'),

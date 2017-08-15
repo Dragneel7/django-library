@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     {% block title %}
-    <Title>Online Library System</Title>
+    <Title>ArIES Inventory System</Title>
     {% endblock %}
 
     <link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -33,7 +33,7 @@
             <div class="logo">
                 <img src="{{ STATIC_URL }}img/logo.png" class="logo_img" />
             </div>
-          <a class="brand" href="{% url 'home' %}">Library Management System</a>
+          <a class="brand" href="{% url 'home' %}">Equipment Management System</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
               {% block top_menu %}
@@ -44,9 +44,7 @@
                {% if user.is_authenticated %}
                 <li {% if active_tab|stringformat:'s' == 'profile' %} class="active" {% endif %} ><a
                     href="{% url 'user' user.username %}">My profile</a></li>
-                <li {% if active_tab|stringformat:'s' == 'quotations' %} class="active" {% endif %} ><a
-                    href="{% url 'user_quotations' %}">Saved quotations</a></li>
-                <li {% if active_tab|stringformat:'s' == 'books' %} class="active" {% endif %} ><a href="{% url 'books' %}">Books</a></li>
+                <li {% if active_tab|stringformat:'s' == 'equipments' %} class="active" {% endif %} ><a href="{% url 'equipments' %}">Equipments</a></li>
                {% endif %}
 
               <li {% if active_tab|stringformat:'s' == 'about' %} class="active" {% endif %} ><a href="{% url 'about' %}">About us</a></li>
@@ -121,7 +119,7 @@
             <div class="footer-container-outer">
                 <div class="footer-container">
                     <div class="footer-container-inner">
-                        Library Management System | Tomasz Potanski
+                        Equipment Management System | Sharan Lobana
                     </div>
                 </div>
             </div>

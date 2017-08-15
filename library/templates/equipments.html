@@ -5,8 +5,8 @@
 
 {% block content %}
 
-        <form action="{% url 'books' %}" method="POST" class="form-signin" role="form">{% csrf_token %}
-            <h2 class="form-signin-heading">Search for books</h2>
+        <form action="{% url 'equipments' %}" method="POST" class="form-signin" role="form">{% csrf_token %}
+            <h2 class="form-signin-heading">Search for equipments</h2>
             <input type="hidden" name="search" value="true">
             <input type="text" name="title_keyword" placeholder="insert phrase"
                    value="{{ last_phrase }}">
@@ -15,20 +15,18 @@
               <select name="where">
                 <option value="title" {% if last_where and last_where == "title" %} selected="true" {% endif %}>titles
                 </option>
-                <option value="author" {% if last_where and last_where == "author" %} selected="true" {% endif %}>authors
-                </option>
-                <option value="publisher" {% if last_where and last_where == "publisher" %} selected="true" {% endif %}>publisher
+                <option value="company" {% if last_where and last_where == "company" %} selected="true" {% endif %}>company
                 </option>
               </select><br/>
 
                 <label><input type="checkbox" name="only_available" checked="true"
-                                      value="only"/>Search only currently available books</label>
+                                      value="only"/>Search only currently available equipments</label>
 
             <br/>
             <br/>
             <button class="btn btn-lg btn-primary btn-block" type="submit">Search</button>
         </form>
         {% autoescape off %}
-        {% render_table books_table "table_without_footer.html" %}
+        {% render_table equipments_table "table_without_footer.html" %}
         {% endautoescape %}
 {% endblock %}

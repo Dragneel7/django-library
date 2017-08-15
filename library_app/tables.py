@@ -1,5 +1,5 @@
 import django_tables2 as tables
-from .models import Book, UserProfile, Author, Publisher, LendPeriods
+from .models import Equipment, UserProfile, Company, LendPeriods
 from datetime import timedelta, date
 
 
@@ -17,69 +17,51 @@ class PeriodsTable(tables.Table):
         fields = ('name', 'days_amount')
 
 
-class PublisherTable(tables.Table):
+class CompanyTable(tables.Table):
     """
-    Table to render Publishers from database
+    Table to render Companies from database
     """
     def render_name(self, record):
-        return '<a href="/publishers/show/%s">%s</a>' % (record.id, record.name)
+        return '<a href="/companies/show/%s">%s</a>' % (record.id, record.name)
 
     class Meta:
-        model = Publisher
+        model = Company
         attrs = {'class': 'books_table'}
         sequence = ('name',)
         fields = ('name',)
 
 
-class AuthorTable(tables.Table):
+class EquipmentTable(tables.Table):
     """
-    Table to render Authors from databes
+    Table to render Equipments from database
     """
-    def render_name(self, record):
-        return '<a href="/authors/show/%s">%s</a>' % (record.id, record.name)
-
-    class Meta:
-        model = Author
-        attrs = {'class': 'books_table'}
-        sequence = ('name', 'surname', 'date_of_birth')
-        fields = ('name', 'surname', 'date_of_birth')
-
-
-class BookTable(tables.Table):
-    """
-    Table to render Books from database
-    """
-    publisher = tables.Column()
+    company = tables.Column()
 
     lend_period = tables.Column(verbose_name="Borrow for")
 
     def render_title(self, record):
-        return '<a href="/books/show/%d">%s</a>' % (record.id, record.title)
+        return '<a href="/equipments/show/%d">%s</a>' % (record.id, record.title)
 
-    def render_publisher(self, value):
+    def render_company(self, value):
         return '%s' % (value.__unicode__())[11:]
-
-
-    def render_author(self, value):
-        return '%s' % (value.__unicode__())[8:]
 
     def render_lend_period(self, record):
         if record.lend_by != None:
             return 'Already lent'
         else:
-            return "<a href='/books/borrow/%s' onclick='javascript:return confirm(\"Do you want to borrow %s for %s?\")'>%s</a>" % (record.id, record.title, record.lend_period, record.lend_period.__unicode__())
+            return "<a href='/equipments/borrow/%s' onclick='javascript:return confirm(\"Do you want to borrow %s for %s?\")'>%s</a>" % (record.id, record.title, record.lend_period, record.lend_period.__unicode__())
 
     class Meta:
-        model = Book
+        model = Equipment
         attrs = {'class': 'books_table'}
-        sequence = ('title', 'author', 'publisher', 'page_amount', 'lend_period')
-        fields = ('title', 'author', 'publisher', 'page_amount', 'lend_period')
+        sequence = ('title', 'company', 'price', 'lend_period')
+        fields = ('title', 'company', 'price', 'lend_period')
 
 
-class BookTableUser(BookTable):
+class EquipmentTableUser(EquipmentTable):
     """
-    This table renders books, but is used to present
-    books borrowed by the user and thus slightly differs from BookTable
+    This table renders equipments, but is used to present
+    equipments borrowed by the user and thus slightly differs from EquipmentTable
     """
     lend_period = tables.Column(verbose_name="Need to return in")
 
@@ -91,10 +73,10 @@ class BookTableUser(BookTable):
             return '<span class="deadline">After the deadline!</span>'
 
     class Meta:
-        model = Book
+        model = Equipment
         attrs = {'class': 'books_table'}
-        sequence = ('title', 'author', 'publisher', 'page_amount', 'lend_period')
-        fields = ('title', 'author', 'publisher', 'page_amount', 'lend_period')
+        sequence = ('title', 'company', 'price', 'lend_period')
+        fields = ('title', 'company', 'price', 'lend_period')
 
 
 class FriendTable(tables.Table):

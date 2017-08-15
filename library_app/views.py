@@ -4,9 +4,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from django.template.base import add_to_builtins
-from .forms import AuthenticateForm, UserCreateForm, UserEditForm, AuthorForm, PublisherForm, LendPeriodForm, BookForm
-from .models import Book, LendPeriods, QuotationFromBook, Author, Publisher, UserProfile
-from .tables import BookTable, FriendTable, BookTableUser, AuthorTable, PublisherTable, PeriodsTable
+from .forms import AuthenticateForm, UserCreateForm, UserEditForm, CompanyForm, LendPeriodForm, EquipmentForm
+from .models import Equipment, LendPeriods, Company, UserProfile
+from .tables import EquipmentTable, FriendTable, EquipmentTableUser, CompanyTable, PeriodsTable
 from django_tables2 import RequestConfig
 from django.contrib import messages
 from django.utils import timezone
@@ -85,7 +85,7 @@ def sign_up(request, user_form=None, incomplete_form=None):
     """
     View responsible for sign up (without facebook authorization)
 
-    :param user_form: for to validate input data and create new user (UserProfile and User)
+    :param user_form: to validate input data and create new user (UserProfile and User)
     :type user_form: `UserCreateForm()`
     :param incomplete_form: (temporary) variable that determines whether the user_form contains errors
     :type incomplete_form: `string`
@@ -110,7 +110,6 @@ def sign_up(request, user_form=None, incomplete_form=None):
 def logout_view(request):
     """
     View logs user out of the system.
-
     """
     logout(request)
     return redirect('/')
@@ -121,31 +120,10 @@ def home(request):
     View for rendering home for both: authorized and unauthorized users.
     """
     if request.user.is_authenticated():
-        # private home
-        friends_quotations = []
-        nr = 0
-        for friend in request.user.profile.friends.all():
-            friend_quots = (QuotationFromBook.objects.filter(user=friend.user))
-            quote = list(friend_quots[:1])[0].get_full_quotation() if friend_quots.count() > 0 else "---"
-            if friend_quots.count() > 0:
-                author_instance = list(friend_quots[:1])[0].book.author
-                author = author_instance.name + ' ' + author_instance.surname if friend_quots.count() > 0 else "---"
-            else:
-                author = '---'
-            friends_quotations.append((friend, quote, author, nr))
-            nr += 1
-
-        count = friends_quotations.__len__()
-        return render(request,
-                      'home.html',
-                      {'user': request.user,
-                       'friends_quotations': friends_quotations,
-                       'count': count})
+        return render(request, 'home.html', {'user': request.user })
     else:
         # public home
-        return render(request,
-                      'public_home.html',
-                      {'user': request.user})
+        return render(request, 'public_home.html', {'user': request.user})
 
 
 def about(request):
@@ -238,66 +216,53 @@ def publishers(request):
 
 
 @login_required(login_url='/sign_in/')
-def books(request):
+def equipments(request):
     """
-    View presents all books present in the system.
+    View presents all equipments present in the system.
     """
-    books_qs = Book.objects.all()
+    equipments_qs = Equipment.objects.all()
     return_dict = {}
     if request.method == 'POST':
         if request.POST['search'] and request.POST['title_keyword'] and request.POST['where']:
             if request.POST['where'] == 'title':
-                found_books = Book.objects.filter(title__contains=request.POST['title_keyword'])
-            elif request.POST['where'] == 'author':
-                found_books = Book.objects.filter(
-                    author__name__contains=request.POST['title_keyword']) | Book.objects.filter(
-                    author__surname__contains=request.POST['title_keyword'])
-            else:  # searching in publishers
-                found_books = Book.objects.filter(publisher__name__contains=request.POST['title_keyword'])
+                found_equipments = Equipment.objects.filter(title__contains=request.POST['title_keyword'])
+            else:  # searching in companies
+                found_equipments = Equipment.objects.filter(company__name__contains=request.POST['title_keyword'])
 
             if request.POST.get('only_available', False):
-                found_books = found_books.filter(lend_by__isnull=True)
-            books_qs = found_books
+                found_equipments = found_equipments.filter(lend_by__isnull=True)
+            equipments_qs = found_equipments
             return_dict['last_phrase'] = request.POST['title_keyword']
             return_dict['last_where'] = request.POST['where']
 
-    books_table = BookTable(books_qs)
-    RequestConfig(request, paginate={"per_page": 5}).configure(books_table)
-    return_dict['books_table'] = books_table
-    return render(request, 'books.html', return_dict)
+    equipments_table = EquipmentTable(equipments_qs)
+    RequestConfig(request, paginate={"per_page": 5}).configure(equipments_table)
+    return_dict['equipments_table'] = equipments_table
+    return render(request, 'equipments.html', return_dict)
 
 
 @login_required(login_url='/sign_in/')
-def books_show(request, book_id):
+def equipments_show(request, equipment_id):
     """
-    View presents specific book.
+    View presents specific equipment.
 
-    :param book_id: id of the specific book
-    :type book_id: `int`
+    :param equipment_id: id of the specific equipment
+    :type equipment_id: `int`
     """
     try:
-        book = Book.objects.get(id=book_id)
+        equipment = Equipment.objects.get(id=equipment_id)
     except ObjectDoesNotExist:
-        messages.error(request, "This book does not exist")
+        messages.error(request, "This equipment does not exist")
         return redirect('/')
 
-    if book:
+    if equipment:
         pbu = "false"
 
-        if request.method == 'POST':
-            if request.POST.get('quotation', False):
-                new_quote = QuotationFromBook(user=request.user, book=book, quotation=request.POST['quotation'],
-                                              creation_date=timezone.now())
-                new_quote.save()
-                messages.success(request, 'New quotation has been successfully saved!')
-
-        if book.lend_by == request.user.profile:
+        if equipment.lend_by == request.user.profile:
             pbu = "true"
-        return render(request, 'book_show.html',
-                      {'book': book,
-                       'pbu': pbu})
+        return render(request, 'equipment_show.html', {'equipment':equipment, 'pbu':pbu})
     else:
-        return redirect('/books/')
+        return redirect('/equipments/')
 
 
 @login_required(login_url='/sign_in/')
@@ -314,8 +279,8 @@ def authors_show(request, author_id):
         return redirect('/')
 
     if author:
-        books_qs = Book.objects.filter(author=author)
-        books_table = BookTable(books_qs)
+        books_qs = Equipment.objects.filter(author=author)
+        books_table = EquipmentTable(books_qs)
         RequestConfig(request, paginate={"per_page": 5}).configure(books_table)
 
         return render(request, 'author_show.html',
@@ -342,8 +307,8 @@ def publishers_show(request, publisher_id):
         return redirect('/')
 
     if publisher:
-        books_qs = Book.objects.filter(publisher=publisher)
-        books_table = BookTable(books_qs)
+        books_qs = Equipment.objects.filter(publisher=publisher)
+        books_table = EquipmentTable(books_qs)
         RequestConfig(request, paginate={"per_page": 5}).configure(books_table)
 
         return render(request, 'publisher_show.html',
@@ -397,8 +362,8 @@ def remove_instance(request, what, id_obj):
         what_singular = 'Period'
         obj = LendPeriods.objects.get(id=id_obj)
     elif what == 'books':
-        what_singular = 'Book'
-        obj = Book.objects.get(id=id_obj)
+        what_singular = 'Equipment'
+        obj = Equipment.objects.get(id=id_obj)
     else:
         messages.info(request, "Incorrect type of instance...")
         return redirect('/')
@@ -435,8 +400,8 @@ def edit_instance(request, what, id_obj):
             LendPeriodForm(instance=LendPeriods.objects.get(id=id_obj)))
     elif what == 'books':
         what_singular = 'book'
-        form = (BookForm(request.POST, instance=Book.objects.get(id=id_obj)) if request.method == 'POST' else BookForm(
-            instance=Book.objects.get(id=id_obj)))
+        form = (EquipmentForm(request.POST, instance=Equipment.objects.get(id=id_obj)) if request.method == 'POST' else EquipmentForm(
+            instance=Equipment.objects.get(id=id_obj)))
     else:
         messages.info(request, "Incorrect type of instance...")
         return redirect('/')
@@ -475,7 +440,7 @@ def create_instance(request, what):
         form = (LendPeriodForm(request.POST) if request.method == 'POST' else LendPeriodForm())
     elif what == 'books':
         what_singular = 'book'
-        form = (BookForm(request.POST) if request.method == 'POST' else BookForm())
+        form = (EquipmentForm(request.POST) if request.method == 'POST' else EquipmentForm())
     else:
         messages.info(request, "Incorrect type of new instance...")
         return redirect('/')
@@ -496,33 +461,33 @@ def create_instance(request, what):
 
 # this decorator also checks if user is authenticated
 @group_required('Librarians')
-def return_book(request, book_id):
+def return_equipment(request, equipment_id):
     """
-    View responsible for marking that specific book has been returned to library.
+    View responsible for marking that specific equipment has been returned to library.
 
-    :param book_id: book's id
-    :type book_id: `int`
+    :param equipment_id: equipment's id
+    :type equipment_id: `int`
     """
-    book = Book.objects.get(id=book_id)
-    if book.lend_by is not None:
-        book.lend_by = None
-        book.lend_from = None
-        book.save()
-        messages.success(request, 'Book ' + book.title[5:] + ' has been marked as returned')
-        return books_show(request, book_id)
+    equipment = Equipment.objects.get(id=equipment_id)
+    if equipment.lend_by is not None:
+        equipment.lend_by = None
+        equipment.lend_from = None
+        equipment.save()
+        messages.success(request, 'Equipment ' + equipment.title[5:] + ' has been marked as returned')
+        return equipments_show(request, equipment_id)
     else:
         return redirect('/')
 
 
 @login_required(login_url='/sign_in/')
-def borrow_book(request, book_id):
+def borrow_equipment(request, book_id):
     """
     View responsible for marking that specific book has been borrowed and is not available in the library.
 
     :param book_id: book's id
     :type book_id: `int`
     """
-    book = Book.objects.get(id=book_id)
+    book = Equipment.objects.get(id=book_id)
     if book:
         if book.lend_by is None:
             book.lend_by = request.user.profile
@@ -553,10 +518,10 @@ def user(request, username):
     other_is_friend = True if request.user.profile.friends.filter(user=this_user).count() == 1 else False
 
     friends_table = FriendTable(profile.friends.all())
-    books_qs = Book.objects.filter(lend_by=profile)
-    books_table = BookTableUser(books_qs)
+    books_qs = Equipment.objects.filter(lend_by=profile)
+    books_table = EquipmentTableUser(books_qs)
 
-    user_saved_quotations = QuotationFromBook.objects.filter(user=this_user)
+    user_saved_quotations = QuotationFromEquipment.objects.filter(user=this_user)
     paginator = Paginator(user_saved_quotations, 2)
 
     page = request.GET.get('page')
@@ -621,7 +586,7 @@ def user_quotations(request):
     """
     Renders user's quotation
     """
-    user_saved_quotations = QuotationFromBook.objects.filter(user=request.user)
+    user_saved_quotations = QuotationFromEquipment.objects.filter(user=request.user)
     paginator = Paginator(user_saved_quotations, 2)
 
     page = request.GET.get('page')
