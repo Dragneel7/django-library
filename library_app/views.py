@@ -196,23 +196,23 @@ def authors(request):
 
 
 @group_required("Librarians")
-def publishers(request):
+def companies(request):
     """
-    View presents all book publishers present in the system.
+    View presents all book companies present in the system.
     """
-    publishers_qs = Publisher.objects.all()
+    companies_qs = Company.objects.all()
     return_dict = {}
     if request.method == 'POST':
         if request.POST['search'] and request.POST['keyword']:
-            found_publishers = Publisher.objects.filter(name__contains=request.POST['keyword'])
+            found_companies = Company.objects.filter(name__contains=request.POST['keyword'])
 
-            publishers_qs = found_publishers
+            companies_qs = found_companies
             return_dict['last_phrase'] = request.POST['keyword']
 
-    publishers_table = PublisherTable(publishers_qs)
-    RequestConfig(request, paginate={"per_page": 5}).configure(publishers_table)
-    return_dict['publishers_table'] = publishers_table
-    return render(request, 'publishers.html', return_dict)
+    companies_table = CompanyTable(companies_qs)
+    RequestConfig(request, paginate={"per_page": 5}).configure(companies_table)
+    return_dict['companies_table'] = companies_table
+    return render(request, 'companies.html', return_dict)
 
 
 @login_required(login_url='/sign_in/')
@@ -279,7 +279,7 @@ def authors_show(request, author_id):
         return redirect('/')
 
     if author:
-        books_qs = Equipment.objects.filter(author=author)
+        equipments_qs = Equipment.objects.filter(author=author)
         books_table = EquipmentTable(books_qs)
         RequestConfig(request, paginate={"per_page": 5}).configure(books_table)
 
@@ -293,31 +293,31 @@ def authors_show(request, author_id):
 
 
 @login_required(login_url='/sign_in/')
-def publishers_show(request, publisher_id):
+def companies_show(request, company_id):
     """
-    View presents specific publisher form the system.
+    View presents specific company form the system.
 
-    :param publisher_id: publisher's id
-    :type publisher_id: `int`
+    :param company_id: company's id
+    :type company_id: `int`
     """
     try:
-        publisher = Publisher.objects.get(id=publisher_id)
+        company = Company.objects.get(id=company_id)
     except ObjectDoesNotExist:
-        messages.error(request, "This publisher does not exist")
+        messages.error(request, "This company does not exist")
         return redirect('/')
 
-    if publisher:
-        books_qs = Equipment.objects.filter(publisher=publisher)
-        books_table = EquipmentTable(books_qs)
-        RequestConfig(request, paginate={"per_page": 5}).configure(books_table)
+    if company:
+        equipments_qs = Equipment.objects.filter(company=company)
+        equipments_table = EquipmentTable(equipments_qs)
+        RequestConfig(request, paginate={"per_page": 5}).configure(equipments_table)
 
-        return render(request, 'publisher_show.html',
-                      {'publisher': publisher,
-                       'books_table': books_table,
-                       'books_qs': books_qs})
+        return render(request, 'company_show.html',
+                      {'company': company,
+                       'equipments_table': equipments_table,
+                       'equipments_qs': equipments_qs})
     else:
-        messages.info(request, "Publisher does not exist")
-        return publishers(request)
+        messages.info(request, "Company does not exist")
+        return companies(request)
 
 
 @login_required(login_url='/sign_in/')
@@ -347,21 +347,18 @@ def remove_instance(request, what, id_obj):
     """
     View responsible for removing specific instance from the system.
 
-    :param what: describes type of instance to remove e.g., authors, publishers, periods, books
+    :param what: describes type of instance to remove e.g., companies, periods, equipments
     :type what: `string`
     :param id_obj: instance's id
     :type id_obj: `int`
     """
-    if what == 'authors':
-        what_singular = 'Author'
-        obj = Author.objects.get(id=id_obj)
-    elif what == 'publishers':
-        what_singular = 'Publisher'
-        obj = Publisher.objects.get(id=id_obj)
+    if what == 'companies':
+        what_singular = 'Company'
+        obj = Company.objects.get(id=id_obj)
     elif what == 'periods':
         what_singular = 'Period'
         obj = LendPeriods.objects.get(id=id_obj)
-    elif what == 'books':
+    elif what == 'equipments':
         what_singular = 'Equipment'
         obj = Equipment.objects.get(id=id_obj)
     else:
@@ -378,28 +375,24 @@ def edit_instance(request, what, id_obj):
     """
     View responsible for editing specific instance from the system.
 
-    :param what: describes type of instance to edit e.g., authors, publishers, periods, books
+    :param what: describes type of instance to edit e.g., companies, periods, equipments
     :type what: `string`
     :param id_obj: instance's id
     :type id_obj: `int`
     """
 
-    if what == 'authors':
-        what_singular = 'author'
-        form = (AuthorForm(request.POST, instance=Author.objects.get(id=id_obj)) if request.method == 'POST' else
-                AuthorForm(instance=Author.objects.get(id=id_obj)))
-    elif what == 'publishers':
-        what_singular = 'publisher'
-        form = (PublisherForm(request.POST,
-                              instance=Publisher.objects.get(id=id_obj)) if request.method == 'POST' else PublisherForm(
-            instance=Publisher.objects.get(id=id_obj)))
+    if what == 'companies':
+        what_singular = 'company'
+        form = (CompanyForm(request.POST,
+                              instance=Company.objects.get(id=id_obj)) if request.method == 'POST' else CompanyForm(
+            instance=Company.objects.get(id=id_obj)))
     elif what == 'periods':
         what_singular = 'period'
         form = (
             LendPeriodForm(request.POST, instance=LendPeriods.objects.get(id=id_obj)) if request.method == 'POST' else
             LendPeriodForm(instance=LendPeriods.objects.get(id=id_obj)))
-    elif what == 'books':
-        what_singular = 'book'
+    elif what == 'equipments':
+        what_singular = 'equipment'
         form = (EquipmentForm(request.POST, instance=Equipment.objects.get(id=id_obj)) if request.method == 'POST' else EquipmentForm(
             instance=Equipment.objects.get(id=id_obj)))
     else:
@@ -426,20 +419,17 @@ def create_instance(request, what):
     """
     View responsible for creating instance of specific type.
 
-    :param what: describes type of instance to create e.g., authors, publishers, periods, books
+    :param what: describes type of instance to create e.g.,  companies, periods, equipments
     :type what: `string`
     """
-    if what == 'authors':
-        what_singular = 'author'
-        form = (AuthorForm(request.POST) if request.method == 'POST' else AuthorForm())
-    elif what == 'publishers':
-        what_singular = 'publisher'
-        form = (PublisherForm(request.POST) if request.method == 'POST' else PublisherForm())
+    if what == 'companies':
+        what_singular = 'company'
+        form = (CompanyForm(request.POST) if request.method == 'POST' else CompanyForm())
     elif what == 'periods':
         what_singular = 'period'
         form = (LendPeriodForm(request.POST) if request.method == 'POST' else LendPeriodForm())
-    elif what == 'books':
-        what_singular = 'book'
+    elif what == 'equipments':
+        what_singular = 'equipment'
         form = (EquipmentForm(request.POST) if request.method == 'POST' else EquipmentForm())
     else:
         messages.info(request, "Incorrect type of new instance...")
@@ -480,20 +470,20 @@ def return_equipment(request, equipment_id):
 
 
 @login_required(login_url='/sign_in/')
-def borrow_equipment(request, book_id):
+def borrow_equipment(request, equipment_id):
     """
-    View responsible for marking that specific book has been borrowed and is not available in the library.
+    View responsible for marking that specific equipment has been borrowed and is not available in the inventory.
 
-    :param book_id: book's id
-    :type book_id: `int`
+    :param equipment_id: equipment's id
+    :type equipment_id: `int`
     """
-    book = Equipment.objects.get(id=book_id)
-    if book:
-        if book.lend_by is None:
-            book.lend_by = request.user.profile
-            book.lend_from = timezone.now()
-            book.save()
-    return redirect('/books/')
+    equipment = Equipment.objects.get(id=equipment_id)
+    if equipment:
+        if equipment.lend_by is None:
+            equipment.lend_by = request.user.profile
+            equipment.lend_from = timezone.now()
+            equipment.save()
+    return redirect('/equipments/')
 
 
 @login_required(login_url='/sign_in/')
@@ -518,31 +508,20 @@ def user(request, username):
     other_is_friend = True if request.user.profile.friends.filter(user=this_user).count() == 1 else False
 
     friends_table = FriendTable(profile.friends.all())
-    books_qs = Equipment.objects.filter(lend_by=profile)
-    books_table = EquipmentTableUser(books_qs)
-
-    user_saved_quotations = QuotationFromEquipment.objects.filter(user=this_user)
-    paginator = Paginator(user_saved_quotations, 2)
-
-    page = request.GET.get('page')
-    try:
-        quotations = paginator.page(page)
-    except PageNotAnInteger:
-        quotations = paginator.page(1)
-    except EmptyPage:
-        quotations = paginator.page(paginator.num_pages)
+    equipments_qs = Equipment.objects.filter(lend_by=profile)
+    equipments_table = EquipmentTableUser(equipments_qs)
 
     RequestConfig(request, paginate={"per_page": 5}).configure(friends_table)
-    RequestConfig(request, paginate={"per_page": 5}).configure(books_table)
+    RequestConfig(request, paginate={"per_page": 5}).configure(equipments_table)
     return render(request, 'user.html',
                   {'profile': profile,
                    'friends_table': friends_table,
-                   'books_table': books_table,
-                   'books_qs': books_qs,
+                   'equipments_table': equipments_table,
+                   'equipments_qs': equipments_qs,
                    'other_user': other_user,
                    'this_user': this_user,
                    'other_is_friend': other_is_friend,
-                   'quotations': quotations})
+                   })
 
 
 @login_required(login_url='/sign_in/')
@@ -579,27 +558,6 @@ def user_connect(request, action, username):
     request.user.profile.save()
     messages.success(request, "User successfully " + str)
     return user(request, request.user.username)
-
-
-@login_required(login_url='/sign_in/')
-def user_quotations(request):
-    """
-    Renders user's quotation
-    """
-    user_saved_quotations = QuotationFromEquipment.objects.filter(user=request.user)
-    paginator = Paginator(user_saved_quotations, 2)
-
-    page = request.GET.get('page')
-    try:
-        quotations = paginator.page(page)
-    except PageNotAnInteger:
-        quotations = paginator.page(1)
-    except EmptyPage:
-        quotations = paginator.page(paginator.num_pages)
-
-    return render(request, 'my_quotations.html',
-                  {'quotations': quotations})
-
 
 @login_required(login_url='/sign_in/')
 def useredit(request, user_edit_form=None):

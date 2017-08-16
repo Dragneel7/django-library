@@ -34,8 +34,8 @@ urlpatterns = patterns('',
     url(r'^useredit/$', 'library_app.views.useredit', name='useredit'),
 
     #publishers
-    url(r'^publishers/$', 'library_app.views.publishers', name='publishers'),
-    url(r'^publishers/show/(?P<publisher_id>\w{0,5})/$', 'library_app.views.publishers_show', name='publishers_show'),
+    url(r'^companies/$', 'library_app.views.companies', name='companies'),
+    url(r'^companies/show/(?P<publisher_id>\w{0,5})/$', 'library_app.views.companies_show', name='publishers_show'),
 
     #periods
     url(r'^periods/$', 'library_app.views.periods', name='periods'),

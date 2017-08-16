@@ -43,7 +43,7 @@ class EquipmentTable(tables.Table):
         return '<a href="/equipments/show/%d">%s</a>' % (record.id, record.title)
 
     def render_company(self, value):
-        return '%s' % (value.__unicode__())[11:]
+        return '%s' % (value.__unicode__())[8:]
 
     def render_lend_period(self, record):
         if record.lend_by != None:

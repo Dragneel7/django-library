@@ -5,8 +5,8 @@
 
 {% block content %}
 
-        <form action="{% url 'publishers' %}" method="POST" class="form-signin" role="form">{% csrf_token %}
-            <h2 class="form-signin-heading">Search for publishers</h2>
+        <form action="{% url 'companies' %}" method="POST" class="form-signin" role="form">{% csrf_token %}
+            <h2 class="form-signin-heading">Search for companies</h2>
             <input type="hidden" name="search" value="true">
             <input type="text" name="keyword" placeholder="insert phrase"
                    value="{{ last_phrase }}">
@@ -16,6 +16,6 @@
             <button class="btn btn-lg btn-primary btn-block" type="submit">Search</button>
         </form>
         {% autoescape off %}
-        {% render_table publishers_table "table_without_footer.html" %}
+        {% render_table companies_table "table_without_footer.html" %}
         {% endautoescape %}
 {% endblock %}

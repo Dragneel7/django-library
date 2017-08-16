@@ -40,68 +40,33 @@
         <br/>
 
     {% if other_is_friend or not other_user %}
-        {% if books_qs %}
-        <br/><br/>{% if not other_user %}Your{% else %}His/Her{% endif %} books:
+        {% if equipments_qs %}
+        <br/><br/>{% if not other_user %}Your{% else %}His/Her{% endif %} equipments:
         {% autoescape off %}
-        {% render_table books_table "table_without_footer.html" %}
+        {% render_table equipments_table "table_without_footer.html" %}
         {% endautoescape %}
         {% else %}
-        <br/><br/>{% if not other_user %}You do{% else %}He/She does{% endif %} not have books!
-        {% if not other_user %} <a href="{% url 'books' %}">Borrow some</a> ;) {% endif %}
+        <br/><br/>{% if not other_user %}You do{% else %}He/She does{% endif %} not have equipments!
+        {% if not other_user %} <a href="{% url 'equipments' %}">Borrow some</a> ;) {% endif %}
         {% endif %}
     {% endif %}
 
     <br/><br/>
-    {% if other_user and other_is_friend %}
-
-{% if quotations %}
-<ul>
-    His/Her saved quotations:
-    {% for q in quotations %}
-    <li><span class="quotation">"{{ q.quotation }}<span class='last_letter_of_quotation'>"</span></span> by:
-        <a href="{% url 'books_show' q.book.id %}">{{ q.book.title }}</a></li>
-    {% endfor %}
-</ul>
-{% endif %}
-</p>
-
-{% if quotations %}
-<div class="pagination">
-    <span class="step-links">
-        {% if quotations.has_previous %}
-            <a href="?page={{ quotations.previous_page_number }}">Previous page</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ quotations.number }} of {{ quotations.paginator.num_pages }}.
-        </span>
-
-        {% if quotations.has_next %}
-            <a href="?page={{ quotations.next_page_number }}">Next page</a>
-        {% endif %}
-    </span>
-</div>
-{% else %}
-He/She do not have any quotations saved...
-{% endif %}
-    {% endif %}
 
 
         {% if not other_user and request.user|has_group:"Librarians" %}
             <hr/>
-        <div class="page-title-outer"><div class="page-title">Librarian dashboard</div></div>
+        <div class="page-title-outer"><div class="page-title">Management dashboard</div></div>
         <p>
             <ul>
-                <li>You can mark books as returned. To do that, <a href="{% url 'books' %}">search books</a></li>
-                <li>Add <a href="{% url 'new' 'authors' %}">new author</a> | Search
-                    <a href="{% url 'authors' %}">authors</a></li>
-                <li>Add <a href="{% url 'new' 'publishers' %}">new publisher</a> | Search
-                    <a href="{% url 'publishers' %}">publishers</a></li>
+                <li>You can mark equipments as returned. To do that, <a href="{% url 'equipments' %}">search equipments</a></li>
+                <li>Add <a href="{% url 'new' 'companies' %}">new company</a> | Search
+                    <a href="{% url 'companies' %}">companies</a></li>
                 <li>Add
                     <a href="{% url 'new' 'periods' %}">new lending period</a>
                     | Search <a href="{% url 'periods' %}">periods</a></li>
                 <li>Add
-                    <a href="{% url 'new' 'books' %}">new book</a></li>
+                    <a href="{% url 'new' 'equipments' %}">new equipment</a></li>
             </ul>
         </p>
         {% else %}
